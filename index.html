@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>MongoDB ObjectId details extractor</title>
+
+    <meta name="description" content="MongoDB ObjectId details extractor. ObjectId to date and time. ObjectId counter."/>
+
+    <style>
+      textarea {
+        width: 47vw;
+        height: 67vh;
+        font-family: monospace;
+      }
+
+      .grid {
+        background-color: #ACEEAA;
+        /*padding: 10px;*/
+        align-items: center;
+        align-content: center;
+        text-align: center;
+      }
+
+      .row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        margin: 10px;
+        padding: 10px;
+      }
+
+      .col {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        margin: 10px;
+        padding: 10px;
+      }
+    </style>
+
+    <script>
+        var objectIdValue = function (objectId) {
+          // 4-byte value representing the seconds since the Unix epoch
+
+          // ObjectId("5c3b5315ce102c74b742bc48")
+          // "5c3b5315ce102c74b742bc48"
+          // 5c3b5315ce102c74b742bc48
+ 
+          if (objectId.startsWith("ObjectId(\"")) {
+            return objectId.substring(10).substring(0, 24);
+          } else if (objectId.startsWith('"')) {
+            return objectId.substring(1).substring(0, 24);
+          } else {
+            return objectId;
+          }
+        };
+
+        var dateFromObjectId = function (objectId) {
+          // 4-byte value representing the seconds since the Unix epoch
+          var x = objectIdValue(objectId).substring(0, 8)
+          return new Date(parseInt(x, 16) * 1000);
+        };
+
+
+        var randomFromObjectId = function (objectId) {
+          // 5-byte random value
+          var x = objectIdValue(objectId).substring(8, 18);
+          // return "[" + x + " | " +  parseInt(x, 16) + "]";
+          return x;
+        };
+
+        var counterFromObjectId = function (objectId) {
+          // 3-byte counter, starting with a random value
+          var x = objectIdValue(objectId).substring(18, 24);
+          // return "[" + x + " | " +  parseInt(x, 16) + "]";
+          return x;
+        };
+
+        var processText = function (text) {
+          var ids = text.value.split('\n');
+          var details = "";
+          ids.forEach(function(item, i, arr) {
+            if (item) {
+              details = details + "Time: " + dateFromObjectId(item) + " random: " + randomFromObjectId(item) + " counter: " + counterFromObjectId(item) + "\n";
+            }
+          });
+
+          var e = document.getElementById("details");
+          e.value = details;
+        }
+
+        var initialObjectIdValues = function() {
+          var e = document.getElementById("ids");
+          e.value = 'ObjectId("5c3b5315ce102c74b742bc48")\n"5c3b5315ce102c74b742bc48"\n5c3b5315ce102c74b742bc48';
+          processText(e);
+        }
+    </script>
+  </head>
+
+  <body>
+    <center>
+      <h2><code>MongoDB ObjectId details extractor</code></h2>
+    </center>
+    <div class=grid>
+      <div class=row>
+        <div class="column">
+          <h4><code>MongoDB ObjectId values</code></h4>
+          <div><textarea id="ids" onChange="processText(this)"></textarea></div>
+        </div>
+        &nbsp;
+        <div class=column>
+          <h4><code>Details</code></h4>
+          <div><textarea id="details"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <center>
+      <small>
+        ObjectId format description available at <a href="https://docs.mongodb.com/manual/reference/method/ObjectId/#description">MongoDB documentation</a>.        
+        <br />
+        <a class="github-button" href="https://github.com/lashchenko" aria-label="Follow @lashchenko on GitHub">Follow @lashchenko</a>
+        <a class="github-button" href="https://github.com/lashchenko/lashchenko.github.io" data-icon="octicon-star" aria-label="Star lashchenko/lashchenko.github.io on GitHub">Star</a>
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <br />
+
+        Inspired by <a href="https://steveridout.github.io/mongo-object-time">MongoDB ObjectId ↔ Timestamp Converter</a>
+      </small>
+    </center>
+  </body>
+
+  <script type="text/javascript">
+    initialObjectIdValues();
+  </script>
+
+</html>
